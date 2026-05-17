@@ -1,0 +1,8 @@
+{
+  "name": "Mysterio Grid",
+  "description": "A customizable sliding tile puzzle game with unlockable themes and high scores.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

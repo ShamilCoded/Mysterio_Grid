@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@theme {
+  --color-slate-100: #f1f5f9;
+}
+
+html, body {
+  min-height: 100vh;
+  background: transparent;
+}
