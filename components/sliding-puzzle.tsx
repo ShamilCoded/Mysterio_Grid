@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'motion/react';
-import { Trophy, RefreshCw, Settings, Play, Image as ImageIcon, Check, Lock, AlertCircle, Upload, Undo2, Volume2, VolumeX } from 'lucide-react';
+import { Trophy, RefreshCw, Settings, Play, Image as ImageIcon, Check, Lock, AlertCircle, Upload, Undo2, Volume2, VolumeX, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useLocalStorage } from 'usehooks-ts';
 import { cn } from '@/lib/utils';
@@ -17,7 +17,6 @@ interface Theme {
   name: string;
   seed: string;
   category: ThemeCategory;
-  unlockReq?: { size: GridSize };
 }
 
 interface HighScore {
@@ -28,27 +27,27 @@ interface HighScore {
 // Config
 const THEMES: Theme[] = [
   { id: '1', name: 'Autumn Path', seed: 'autumnpath', category: 'Nature' },
-  { id: '2', name: 'Tea Garden', seed: 'flowerteaparty', category: 'Cozy', unlockReq: { size: 3 } },
-  { id: '3', name: 'Coastal Town', seed: 'coastaltown', category: 'Urban', unlockReq: { size: 4 } },
-  { id: '4', name: 'Cozy Cabin', seed: 'cozycabin', category: 'Cozy', unlockReq: { size: 5 } },
+  { id: '2', name: 'Tea Garden', seed: 'flowerteaparty', category: 'Cozy' },
+  { id: '3', name: 'Coastal Town', seed: 'coastaltown', category: 'Urban' },
+  { id: '4', name: 'Cozy Cabin', seed: 'cozycabin', category: 'Cozy' },
   { id: '5', name: 'Neon City', seed: 'neoncity', category: 'Urban' },
-  { id: '6', name: 'Forest Magic', seed: 'forestmagic', category: 'Nature', unlockReq: { size: 3 } },
-  { id: '7', name: 'Desert Oasis', seed: 'desertoasis', category: 'Nature', unlockReq: { size: 4 } },
-  { id: '8', name: 'Cyberpunk', seed: 'cyberpunk', category: 'Urban', unlockReq: { size: 5 } },
-  { id: '9', name: 'Galaxy Colors', seed: 'galaxycolors12', category: 'Space', unlockReq: { size: 3 } },
-  { id: '10', name: 'Deep Nebula', seed: 'deepnebula3', category: 'Space', unlockReq: { size: 4 } },
-  { id: '11', name: 'Starry Night', seed: 'starrynight1', category: 'Space', unlockReq: { size: 5 } },
+  { id: '6', name: 'Forest Magic', seed: 'forestmagic', category: 'Nature' },
+  { id: '7', name: 'Desert Oasis', seed: 'desertoasis', category: 'Nature' },
+  { id: '8', name: 'Cyberpunk', seed: 'cyberpunk', category: 'Urban' },
+  { id: '9', name: 'Galaxy Colors', seed: 'galaxycolors12', category: 'Space' },
+  { id: '10', name: 'Deep Nebula', seed: 'deepnebula3', category: 'Space' },
+  { id: '11', name: 'Starry Night', seed: 'starrynight1', category: 'Space' },
   { id: '12', name: 'Abstract Art', seed: 'abstractart123', category: 'Abstract' },
-  { id: '13', name: 'Fluid Colors', seed: 'fluidcolors12', category: 'Abstract', unlockReq: { size: 3 } },
-  { id: '14', name: 'Geometric Pattern', seed: 'geometricpattern4', category: 'Abstract', unlockReq: { size: 4 } },
+  { id: '13', name: 'Fluid Colors', seed: 'fluidcolors12', category: 'Abstract' },
+  { id: '14', name: 'Geometric Pattern', seed: 'geometricpattern4', category: 'Abstract' },
   { id: '15', name: 'Cute Dog', seed: 'cutedoggie2', category: 'Animals' },
-  { id: '16', name: 'Wild Tiger', seed: 'wildtiger5', category: 'Animals', unlockReq: { size: 3 } },
-  { id: '17', name: 'Mountain Peak', seed: 'mountainpeak8', category: 'Nature', unlockReq: { size: 6 } },
-  { id: '18', name: 'Retro Sci-fi', seed: 'retroscifi1', category: 'Space', unlockReq: { size: 6 } },
-  { id: '19', name: 'Zen Garden', seed: 'zengarden1', category: 'Nature', unlockReq: { size: 5 } },
-  { id: '20', name: 'Rainy Cafe', seed: 'rainycafe3', category: 'Cozy', unlockReq: { size: 6 } },
-  { id: '21', name: 'Crystal Cave', seed: 'crystalcave9', category: 'Nature', unlockReq: { size: 6 } },
-  { id: '22', name: 'Modern Architecture', seed: 'modernarch1', category: 'Urban', unlockReq: { size: 6 } },
+  { id: '16', name: 'Wild Tiger', seed: 'wildtiger5', category: 'Animals' },
+  { id: '17', name: 'Mountain Peak', seed: 'mountainpeak8', category: 'Nature' },
+  { id: '18', name: 'Retro Sci-fi', seed: 'retroscifi1', category: 'Space' },
+  { id: '19', name: 'Zen Garden', seed: 'zengarden1', category: 'Nature' },
+  { id: '20', name: 'Rainy Cafe', seed: 'rainycafe3', category: 'Cozy' },
+  { id: '21', name: 'Crystal Cave', seed: 'crystalcave9', category: 'Nature' },
+  { id: '22', name: 'Modern Architecture', seed: 'modernarch1', category: 'Urban' },
 ];
 
 const GRID_SIZES: GridSize[] = [3, 4, 5, 6];
@@ -100,7 +99,6 @@ export default function SlidingPuzzle() {
   const [activeThemeId, setActiveThemeId] = useLocalStorage<string>('sliding-puzzle-theme', '1');
   const [customImageData, setCustomImageData] = useLocalStorage<string | null>('sliding-puzzle-custom-image', null);
   const [highScores, setHighScores] = useLocalStorage<Record<number, HighScore>>('sliding-puzzle-scores', {});
-  const [unlockedSizes, setUnlockedSizes] = useLocalStorage<number[]>('sliding-puzzle-unlocked-sizes', [3]);
   const [soundEnabled, setSoundEnabled] = useLocalStorage<boolean>('sliding-puzzle-sound', true);
   const [themeFilter, setThemeFilter] = useState<ThemeCategory>('All');
   const [touchStartPos, setTouchStartPos] = useState<{x: number, y: number} | null>(null);
@@ -197,29 +195,33 @@ export default function SlidingPuzzle() {
     return () => clearInterval(interval);
   }, [isPlaying, isWon]);
 
-  const startGame = useCallback(() => {
-    const totalTiles = gridSize * gridSize;
+  const startGame = useCallback((sizeOverride?: GridSize | React.MouseEvent) => {
+    const targetSize = typeof sizeOverride === 'number' ? sizeOverride : gridSize;
+    const totalTiles = targetSize * targetSize;
     let newBoard = Array.from({ length: totalTiles }, (_, i) => i);
     
     // We shuffle by randomly walking the empty tile to guarantee a solvable state.
     let emptyIndex = totalTiles - 1;
-    const shuffleMoves = gridSize * gridSize * 15;
+    const shuffleMoves = targetSize * targetSize * 15;
     
     for (let i = 0; i < shuffleMoves; i++) {
         const validMoves = [];
-        const ex = emptyIndex % gridSize;
-        const ey = Math.floor(emptyIndex / gridSize);
+        const ex = emptyIndex % targetSize;
+        const ey = Math.floor(emptyIndex / targetSize);
         
         if (ex > 0) validMoves.push(emptyIndex - 1);
-        if (ex < gridSize - 1) validMoves.push(emptyIndex + 1);
-        if (ey > 0) validMoves.push(emptyIndex - gridSize);
-        if (ey < gridSize - 1) validMoves.push(emptyIndex + gridSize);
+        if (ex < targetSize - 1) validMoves.push(emptyIndex + 1);
+        if (ey > 0) validMoves.push(emptyIndex - targetSize);
+        if (ey < targetSize - 1) validMoves.push(emptyIndex + targetSize);
         
         const randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
         [newBoard[emptyIndex], newBoard[randomMove]] = [newBoard[randomMove], newBoard[emptyIndex]];
         emptyIndex = randomMove;
     }
 
+    if (typeof sizeOverride === 'number') {
+      setGridSize(targetSize as GridSize);
+    }
     setBoard([...newBoard]);
     setBoardHistory([]);
     setIsPlaying(true);
@@ -227,7 +229,7 @@ export default function SlidingPuzzle() {
     setMoves(0);
     setTime(0);
     playSound('click', soundEnabled);
-  }, [gridSize, soundEnabled]);
+  }, [gridSize, soundEnabled, setGridSize]);
 
   const quitGame = () => {
     setIsPlaying(false);
@@ -291,16 +293,6 @@ export default function SlidingPuzzle() {
                 requestAnimationFrame(frame);
             }
         }());
-
-        // Add to unlocked sizes
-        if (!unlockedSizes.includes(gridSize)) {
-            setUnlockedSizes(prev => [...prev, gridSize]);
-        }
-
-        // Add next size to unlocked sizes
-        if (gridSize < 6 && !unlockedSizes.includes(gridSize + 1 as GridSize)) {
-             setUnlockedSizes(prev => [...prev, gridSize + 1 as GridSize]);
-        }
 
         // Update High Score
         const currentHighScore = highScores[gridSize];
@@ -413,11 +405,10 @@ export default function SlidingPuzzle() {
               </h2>
               <div className="grid grid-cols-2 gap-2">
                 {GRID_SIZES.map((size) => {
-                  const isLocked = size > 3 && !unlockedSizes.includes(size);
                   return (
                     <button
                       key={size}
-                      disabled={isPlaying || isLocked}
+                      disabled={isPlaying}
                       onClick={() => {
                         setGridSize(size as GridSize);
                         playSound('click', soundEnabled);
@@ -425,17 +416,11 @@ export default function SlidingPuzzle() {
                       className={cn(
                         "relative py-3 px-4 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all overflow-hidden",
                         gridSize === size ? "border-indigo-600 bg-indigo-600/5 text-indigo-700 ring-1 ring-indigo-600" : "border-slate-200 hover:border-slate-300 text-slate-600",
-                        isPlaying && !isLocked && "opacity-60 cursor-not-allowed",
-                        isLocked && "bg-slate-50 opacity-70 cursor-not-allowed border-dashed"
+                        isPlaying && "opacity-60 cursor-not-allowed"
                       )}
                     >
                       <span className="font-semibold text-lg">{size}x{size}</span>
-                      {isLocked ? (
-                          <div className="flex items-center gap-1 text-xs text-slate-500 font-medium">
-                              <Lock className="w-3 h-3" />
-                              Locked
-                          </div>
-                      ) : gridSize === size ? (
+                      {gridSize === size ? (
                           <div className="flex items-center gap-1 text-xs text-indigo-600 font-medium">
                               <Check className="w-3 h-3" />
                               Active
@@ -474,11 +459,10 @@ export default function SlidingPuzzle() {
 
               <div className="space-y-2 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
                 {filteredThemes.map((theme) => {
-                  const isLocked = theme.unlockReq && !unlockedSizes.includes(theme.unlockReq.size);
                   return (
                     <button
                       key={theme.id}
-                      disabled={isPlaying || isLocked}
+                      disabled={isPlaying}
                       onClick={() => {
                         setActiveThemeId(theme.id);
                         playSound('click', soundEnabled);
@@ -486,12 +470,11 @@ export default function SlidingPuzzle() {
                       className={cn(
                         "w-full text-left p-3 rounded-xl border flex items-center justify-between transition-all",
                         activeThemeId === theme.id ? "border-indigo-600 bg-indigo-600/5 text-indigo-700 ring-1 ring-indigo-600" : "border-slate-200 hover:border-slate-300 text-slate-700",
-                        isPlaying && !isLocked && "opacity-60 cursor-not-allowed",
-                        isLocked && "bg-slate-50 border-dashed opacity-70 cursor-not-allowed"
+                        isPlaying && "opacity-60 cursor-not-allowed"
                       )}
                     >
                       <div className="flex items-center gap-3">
-                        <div className={cn("w-10 h-10 rounded-md shadow-sm overflow-hidden relative border shrink-0 bg-slate-200 p-[1px] grid grid-cols-2 gap-[1px]", isLocked ? "border-slate-200 grayscale opacity-50" : "border-slate-300")}>
+                        <div className={cn("w-10 h-10 rounded-md shadow-sm overflow-hidden relative border shrink-0 bg-slate-200 p-[1px] grid grid-cols-2 gap-[1px] border-slate-300")}>
                           {[0, 1, 2, 3].map((i) => (
                             <div key={i} className={cn("w-full h-full relative overflow-hidden", i === 3 ? "bg-slate-50" : "bg-white")}>
                               {i !== 3 && (
@@ -506,15 +489,9 @@ export default function SlidingPuzzle() {
                               )}
                             </div>
                           ))}
-                          {isLocked && (
-                              <div className="absolute inset-0 flex items-center justify-center bg-slate-900/10 backdrop-blur-[1px]">
-                                  <Lock className="w-4 h-4 text-slate-700 drop-shadow-sm" />
-                              </div>
-                          )}
                         </div>
                         <div className="flex flex-col min-w-0">
-                          <span className={cn("font-medium truncate", isLocked ? "text-slate-500" : "text-slate-800")}>{theme.name}</span>
-                          {isLocked && <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider truncate">Req: Beat {theme.unlockReq?.size}x{theme.unlockReq?.size}</span>}
+                          <span className="font-medium text-slate-800 truncate">{theme.name}</span>
                         </div>
                       </div>
                       {activeThemeId === theme.id && <Check className="w-5 h-5 text-indigo-600 shrink-0 ml-2" />}
@@ -651,9 +628,15 @@ export default function SlidingPuzzle() {
                  </button>
                  <button 
                   onClick={startGame}
-                  className="flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full bg-slate-100 text-slate-700 font-medium hover:bg-slate-200 transition-colors"
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-full bg-slate-100 text-slate-700 font-medium hover:bg-slate-200 transition-colors"
                  >
                    <RefreshCw className="w-4 h-4" /> <span className="hidden sm:inline">Restart</span>
+                 </button>
+                 <button 
+                  onClick={quitGame}
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-full bg-red-50 text-red-600 font-medium hover:bg-red-100 border border-red-100 transition-colors"
+                 >
+                   <X className="w-4 h-4" /> <span className="hidden sm:inline">Quit</span>
                  </button>
                </div>
             ) : (
@@ -726,7 +709,7 @@ export default function SlidingPuzzle() {
                     
                     {/* Number Overlay overlay (optional, makes it easier if image is confusing) */}
                     {!isEmpty && isPlaying && (
-                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/20 text-white font-bold text-2xl drop-shadow-md transition-opacity">
+                       <div className="absolute inset-0 flex items-center justify-center opacity-100 lg:opacity-0 lg:group-hover:opacity-100 bg-black/40 lg:bg-black/20 text-white font-bold text-xl sm:text-2xl drop-shadow-md transition-opacity pointer-events-none">
                          {originalIndex + 1}
                        </div>
                     )}
@@ -774,12 +757,22 @@ export default function SlidingPuzzle() {
                             </div>
                         </div>
 
-                        <button 
-                            onClick={startGame}
-                            className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-indigo-600 text-white font-semibold text-lg hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all active:scale-95"
-                        >
-                            <RefreshCw className="w-5 h-5" /> Play Again
-                        </button>
+                        <div className="flex flex-col sm:flex-row gap-3 w-full">
+                            <button 
+                                onClick={startGame}
+                                className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-slate-100 text-slate-700 font-semibold text-lg hover:bg-slate-200 shadow-sm transition-all active:scale-95 border border-slate-200"
+                            >
+                                <RefreshCw className="w-5 h-5" /> Play Again
+                            </button>
+                            {gridSize < 6 && (
+                              <button 
+                                  onClick={() => startGame((gridSize + 1) as GridSize)}
+                                  className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-indigo-600 text-white font-semibold text-lg hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all active:scale-95"
+                              >
+                                  Next Level <Play className="w-5 h-5 fill-current" />
+                              </button>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
